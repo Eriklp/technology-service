@@ -1,18 +1,17 @@
 package com.example.technology.application;
 
-import com.example.technology.domain.Technology;
-import com.example.technology.infrastructure.TechnologyRepository;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
-import org.springframework.validation.annotation.Validated;
 
-import jakarta.validation.Valid;
+import com.example.technology.domain.model.Technology;
+import com.example.technology.domain.repository.TechnologyRepository;
+import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
+
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
-@Validated
 public class TechnologyService {
 
     private final TechnologyRepository technologyRepository;
@@ -21,25 +20,36 @@ public class TechnologyService {
         this.technologyRepository = technologyRepository;
     }
 
-    public List<Technology> getAllTechnologies(String sortDirection, int page, int size) {
-        Sort.Direction direction = Sort.Direction.fromString(sortDirection);
-        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, "name"));
-        return technologyRepository.findAll(pageable).getContent();
+    public Mono<Technology> createTechnology(Technology technology) {
+        return Mono.fromCallable(() -> {
+            if (technologyRepository.existsByName(technology.getName())) {
+                throw new IllegalArgumentException("Technology name already exists.");
+            }
+            return technologyRepository.save(technology);
+        }).subscribeOn(Schedulers.boundedElastic());
     }
 
-
-    public Technology getTechnologyById(Long id) {
-        return technologyRepository.findById(id).orElse(null);
+    public Mono<Technology> getTechnologyById(Long id) {
+        return Mono.fromCallable(() -> technologyRepository.findById(id).orElse(null))
+                .subscribeOn(Schedulers.boundedElastic());
     }
 
-    public Technology saveTechnology(@Valid Technology technology) {
-        if (technologyRepository.existsByName(technology.getName())) {
-            throw new IllegalArgumentException("El nombre de la tecnología ya existe");
-        }
-        return technologyRepository.save(technology);
+    public Flux<Technology> listTechnologies(int page, int size, String sort) {
+        // Manual pagination
+        return Mono.fromCallable(() -> {
+                    List<Technology> technologies = technologyRepository.findAllWithSorting(sort);
+                    int start = Math.min(page * size, technologies.size());
+                    int end = Math.min(start + size, technologies.size());
+                    return technologies.subList(start, end);
+                }).flatMapMany(Flux::fromIterable)
+                .subscribeOn(Schedulers.boundedElastic());
     }
 
-    public void deleteTechnology(Long id) {
-        technologyRepository.deleteById(id);
+    public Mono<Void> deleteTechnology(Long id) {
+        return Mono.fromRunnable(() -> technologyRepository.deleteById(id))
+                .subscribeOn(Schedulers.boundedElastic())
+                .then();
     }
 }
+
+

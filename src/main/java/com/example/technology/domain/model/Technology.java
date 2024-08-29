@@ -1,31 +1,29 @@
-package com.example.technology.domain;
+package com.example.technology.domain.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import jakarta.persistence.*;
 
 @Entity
-@Table(name = "technologies", uniqueConstraints = {@UniqueConstraint(columnNames = "name")})
+@Table(name = "technologies")
 public class Technology {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotBlank(message = "El nombre no puede estar vacío")
-    @Size(max = 50, message = "El nombre no puede tener más de 50 caracteres")
-    @Column(nullable = false, length = 50)
+    @Size(max = 50, message = "El tamaño máximo del nombre es 50 caracteres")
     private String name;
 
     @NotBlank(message = "La descripción no puede estar vacía")
-    @Size(max = 90, message = "La descripción no puede tener más de 90 caracteres")
-    @Column(nullable = false, length = 90)
+    @Size(max = 90, message = "El tamaño máximo de la descripción es 90 caracteres")
     private String description;
 
-    protected Technology() {
+    public Technology() {
     }
-    // Constructor con parámetros
-    public Technology(String name, String description) {
+    public Technology(Long id, String name, String description) {
+        this.id = id;
         this.name = name;
         this.description = description;
     }
