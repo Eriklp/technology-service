@@ -10,7 +10,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/technologies")
+@RequestMapping("/")
 public class TechnologyController {
 
     private final TechnologyService technologyService;

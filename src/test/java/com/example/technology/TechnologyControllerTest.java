@@ -39,7 +39,7 @@ public class TechnologyControllerTest {
                 .thenReturn(Mono.just(sampleTechnology));
 
         webTestClient.post()
-                .uri("/api/technologies")
+                .uri("/")
                 .bodyValue(sampleTechnology)
                 .exchange()
                 .expectStatus().isCreated()
@@ -55,7 +55,7 @@ public class TechnologyControllerTest {
                 .thenReturn(Mono.just(sampleTechnology));
 
         webTestClient.get()
-                .uri("/api/technologies/{id}", 1)
+                .uri("/{id}", 1)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody()
@@ -71,7 +71,7 @@ public class TechnologyControllerTest {
 
         webTestClient.get()
                 .uri(uriBuilder -> uriBuilder
-                        .path("/api/technologies")
+                        .path("/")
                         .queryParam("page", 0)
                         .queryParam("size", 10)
                         .queryParam("sort", "asc")
@@ -90,7 +90,7 @@ public class TechnologyControllerTest {
                 .thenReturn(Mono.empty());
 
         webTestClient.delete()
-                .uri("/api/technologies/{id}", 1)
+                .uri("/{id}", 1)
                 .exchange()
                 .expectStatus().isNoContent();
     }
