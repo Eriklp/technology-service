@@ -14,5 +14,12 @@ public interface TechnologyRepository extends JpaRepository<Technology, Long> {
 
     @Query("SELECT t FROM Technology t ORDER BY CASE WHEN :sort = 'asc' THEN t.name ELSE NULL END ASC, CASE WHEN :sort = 'desc' THEN t.name ELSE NULL END DESC")
     List<Technology> findAllWithSorting(@Param("sort") String sort);
+
+    /**
+     * Encuentra todas las tecnologías cuyos nombres están incluidos en la lista proporcionada.
+     * @param names Lista de nombres para buscar.
+     * @return Lista de tecnologías que coinciden con los nombres dados.
+     */
+    List<Technology> findByNameIn(List<String> names);
 }
 

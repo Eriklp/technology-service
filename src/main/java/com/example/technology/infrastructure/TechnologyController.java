@@ -3,11 +3,14 @@ package com.example.technology.infrastructure;
 import com.example.technology.application.TechnologyService;
 import com.example.technology.domain.model.Technology;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/")
@@ -45,6 +48,13 @@ public class TechnologyController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public Mono<Void> deleteTechnology(@PathVariable Long id) {
         return technologyService.deleteTechnology(id);
+    }
+
+    @Operation(summary = "Validate that technology list exist", description = "Return True if all tecnologie list exist in db")
+    @PostMapping("/validate")
+    public ResponseEntity<Boolean> validateTechnologies(@RequestBody List<String> names) {
+        boolean allExist = technologyService.validateExistence(names);
+        return ResponseEntity.ok(allExist);
     }
 }
 

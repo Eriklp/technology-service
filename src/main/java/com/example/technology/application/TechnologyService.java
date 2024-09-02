@@ -9,6 +9,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -50,6 +51,15 @@ public class TechnologyService {
                 .subscribeOn(Schedulers.boundedElastic())
                 .then();
     }
+
+    public boolean validateExistence(List<String> names) {
+        List<Technology> foundTechnologies = technologyRepository.findByNameIn(names);
+        Set<String> foundNames = foundTechnologies.stream()
+                .map(Technology::getName)
+                .collect(Collectors.toSet());
+        return names.stream().allMatch(foundNames::contains);
+    }
+
 }
 
 
